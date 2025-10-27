@@ -52,9 +52,8 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        client-id: ${{ vars.web_application_central_us_CLIENT_ID_C7DD }}
-        tenant-id: ${{ vars.web_application_central_us_TENANT_ID_C7DD }}
-        subscription-id: ${{ vars.web_application_central_us_SUBSCRIPTION_ID_C7DD }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
