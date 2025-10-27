@@ -1,4 +1,4 @@
-name: Build and deploy .NET Core application to Web App web-application-central-us
+name: web-application-build-and-deploy
 on:
   workflow_dispatch:
     inputs:
