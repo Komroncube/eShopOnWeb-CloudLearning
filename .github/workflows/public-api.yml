@@ -1,4 +1,4 @@
-name: Build and deploy .NET Core application to Web App public-api
+name: deploy public-api
 on:
   workflow_dispatch:
 permissions:
@@ -44,9 +44,8 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        client-id: ${{ vars.public_api_CLIENT_ID_E323 }}
-        tenant-id: ${{ vars.public_api_TENANT_ID_E323 }}
-        subscription-id: ${{ vars.public_api_SUBSCRIPTION_ID_E323 }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
