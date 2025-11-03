@@ -13,6 +13,7 @@
     <PackageReference Include="Aspire.Seq" />
     <PackageReference Include="FastEndpoints" />
     <PackageReference Include="FastEndpoints.Swagger" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
@@ -33,6 +34,10 @@
     <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj" />
     <ProjectReference Include="..\eShopWeb.AspireServiceDefaults\eShopWeb.AspireServiceDefaults.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\ServiceDependencies\" />
   </ItemGroup>
 
 

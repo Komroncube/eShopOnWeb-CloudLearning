@@ -58,6 +58,7 @@ builder.AddSeqEndpoint(connectionName: "seq", options =>
 {
     options.ServerUrl = seqUrl;
 });
+builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
 
