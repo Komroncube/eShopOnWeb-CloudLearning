@@ -17,12 +17,14 @@ using NimblePros.Metronome;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
+builder.Services.AddApplicationInsightsTelemetry();
+
 builder.AddAspireServiceDefaults();
 
 builder.Services.AddFastEndpoints();
 
 // Use to force loading of appsettings.json of test project
-builder.Configuration.AddConfigurationFile("appsettings.test.json");
+builder.Configuration.AddConfigurationFile("appsettings.Development.json");
 
 builder.Services.ConfigureLocalDatabaseContexts(builder.Configuration);
 
@@ -58,7 +60,6 @@ builder.AddSeqEndpoint(connectionName: "seq", options =>
 {
     options.ServerUrl = seqUrl;
 });
-builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
 
