@@ -76,6 +76,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+throw new System.Exception("Cannot move further");
+
 app.UseRouting();
 
 app.UseCors(CORS_POLICY);
