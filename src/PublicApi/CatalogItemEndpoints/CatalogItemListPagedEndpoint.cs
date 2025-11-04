@@ -53,14 +53,12 @@ public class CatalogItemListPagedEndpoint(IRepository<CatalogItem> itemRepositor
 
         if (request.PageSize > 0)
         {
-            response.PageCount = (int) Math.Ceiling((decimal)totalItems / request.PageSize);
+            response.PageCount = (int)Math.Ceiling((decimal)totalItems / request.PageSize);
         }
         else
         {
             response.PageCount = totalItems > 0 ? 1 : 0;
         }
-        throw new Exception("Cannot move further");
-
 
         return response;
     }

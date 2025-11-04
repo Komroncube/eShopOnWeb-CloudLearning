@@ -72,11 +72,9 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-//app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
-
-throw new System.Exception("Cannot move further");
 
 app.UseRouting();
 
