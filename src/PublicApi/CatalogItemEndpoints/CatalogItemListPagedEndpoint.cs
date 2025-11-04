@@ -30,7 +30,6 @@ public class CatalogItemListPagedEndpoint(IRepository<CatalogItem> itemRepositor
     public override async Task<ListPagedCatalogItemResponse> ExecuteAsync(ListPagedCatalogItemRequest request, CancellationToken ct)
     {
         await Task.Delay(1000, ct);
-        throw new Exception("Cannot move further");
 
         var response = new ListPagedCatalogItemResponse(request.CorrelationId());
 
@@ -60,6 +59,8 @@ public class CatalogItemListPagedEndpoint(IRepository<CatalogItem> itemRepositor
         {
             response.PageCount = totalItems > 0 ? 1 : 0;
         }
+        throw new Exception("Cannot move further");
+
 
         return response;
     }
