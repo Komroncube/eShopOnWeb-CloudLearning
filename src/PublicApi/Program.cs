@@ -1,4 +1,6 @@
-﻿using BlazorShared;
+﻿using System.Collections.Generic;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using BlazorShared;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Builder;
@@ -13,11 +15,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NimblePros.Metronome;
+using OpenTelemetry.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
-builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddOpenTelemetry()
+    .UseAzureMonitor()
+    .ConfigureResource(rb =>
+    {
+        rb.AddAttributes(
+        [
+            new ("service.name", "PublicApi"),
+        ]);
+    });
 
 builder.AddAspireServiceDefaults();
 
