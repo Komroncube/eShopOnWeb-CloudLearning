@@ -21,7 +21,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.Services.AddOpenTelemetry()
-    .UseAzureMonitor()
+    .UseAzureMonitor(options =>
+    {
+        options.SamplingRatio = 0.2f;
+    })
     .ConfigureResource(rb =>
     {
         rb.AddAttributes(
