@@ -21,8 +21,14 @@ public class OrderCreatedHandler(ILogger<OrderCreatedHandler> logger, IEmailSend
                                          $"Order with id {domainEvent.Order.Id} was created.");
 
         using var httpClient = new HttpClient();
-        var response = await httpClient.PostAsJsonAsync(functionUrl, domainEvent.Order, cancellationToken);
-        logger.LogInformation("Notified external system about order #{orderId}, response status: {statusCode}, blob name: {blobname}", domainEvent.Order.Id, response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken));
+        var order = new
+        {
+            Address = domainEvent.Order.ShipToAddress,
+            ListOfItems = domainEvent.Order.OrderItems,
+            TotalPrice = domainEvent.Order.Total()
+        };
+        var response = await httpClient.PostAsJsonAsync(functionUrl, order, cancellationToken);
+        logger.LogInformation("Notified external system about order #{orderId}, response status: {statusCode}", domainEvent.Order.Id, response.StatusCode);
 
     }
 }

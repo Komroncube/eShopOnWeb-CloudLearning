@@ -14,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddAspireServiceDefaults();
+builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddDatabaseContexts(builder.Environment, builder.Configuration);
 

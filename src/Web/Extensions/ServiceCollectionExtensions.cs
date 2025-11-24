@@ -3,7 +3,6 @@ using BlazorAdmin;
 using BlazorAdmin.Services;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.DotNet.Scaffolding.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.eShopWeb.Infrastructure;
 using Microsoft.eShopWeb.Infrastructure.Data;
@@ -17,7 +16,7 @@ public static class ServiceCollectionExtensions
 {
     public static void AddDatabaseContexts(this IServiceCollection services, IWebHostEnvironment environment, ConfigurationManager configuration)
     {
-        if (environment.IsDevelopment() || environment.IsDocker() || true)
+        if (false && (environment.IsDevelopment() || environment.IsDocker()))
         {
             // Configure SQL Server (local)
             services.ConfigureLocalDatabaseContexts(configuration);
@@ -34,7 +33,7 @@ public static class ServiceCollectionExtensions
                 options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure())
                 .AddInterceptors(provider.GetRequiredService<DbCallCountingInterceptor>());
             });
-            services.AddDbContext<AppIdentityDbContext>((provider,options) =>
+            services.AddDbContext<AppIdentityDbContext>((provider, options) =>
             {
                 var connectionString = configuration[configuration["AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY"] ?? ""];
                 options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure())
