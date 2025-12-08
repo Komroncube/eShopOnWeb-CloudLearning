@@ -1,4 +1,5 @@
-﻿using Microsoft.eShopWeb.ApplicationCore.Interfaces;
+﻿using Azure.Messaging.ServiceBus;
+using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Services;
 using Microsoft.eShopWeb.Infrastructure.Data;
 using Microsoft.eShopWeb.Infrastructure.Data.Queries;
@@ -21,9 +22,24 @@ public static class ConfigureCoreServices
 
         var catalogSettings = configuration.Get<CatalogSettings>() ?? new CatalogSettings();
         services.AddSingleton<IUriComposer>(new UriComposer(catalogSettings));
+        services.AddSingleton(sp =>
+        {
+            var connectionString = configuration["ServiceBusConnection"];
+            return new ServiceBusClient(connectionString);
+        });
+
+        services.AddSingleton(sp =>
+        {
+            var connectionString = configuration["ServiceBusConnection"];
+            var queueName = configuration["ServiceBusQueueName"];
+            return sp.GetRequiredService<ServiceBusClient>().CreateSender(queueName);
+
+        });
 
         services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
         services.AddTransient<IEmailSender, LoggerEmailSender>();
+        services.AddTransient<IServiceBusSenderService, ServiceBusSenderService>();
+
 
         return services;
     }
