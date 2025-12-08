@@ -16,6 +16,18 @@ public static class ServiceCollectionExtensions
 {
     public static void AddDatabaseContexts(this IServiceCollection services, IWebHostEnvironment environment, ConfigurationManager configuration)
     {
+        var useOnlyInMemoryDatabase = false;
+        if (configuration["UseOnlyInMemoryDatabase"] != null)
+        {
+            useOnlyInMemoryDatabase = bool.Parse(configuration["UseOnlyInMemoryDatabase"]!);
+        }
+
+        if (useOnlyInMemoryDatabase)
+        {
+            services.ConfigureLocalDatabaseContexts(configuration);
+            return;
+        }
+
         if (environment.IsDevelopment() || environment.IsDocker())
         {
             // Configure SQL Server (local)

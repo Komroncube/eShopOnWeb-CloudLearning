@@ -34,6 +34,7 @@ param scmDoBuildDuringDeployment bool = false
 param use32BitWorkerProcess bool = false
 param ftpsState string = 'FtpsOnly'
 param healthCheckPath string = ''
+param acrUseManagedIdentityCreds bool = false
 
 resource appService 'Microsoft.Web/sites@2022-03-01' = {
   name: name
@@ -43,6 +44,7 @@ resource appService 'Microsoft.Web/sites@2022-03-01' = {
   properties: {
     serverFarmId: appServicePlanId
     siteConfig: {
+      acrUseManagedIdentityCreds: acrUseManagedIdentityCreds
       linuxFxVersion: linuxFxVersion
       alwaysOn: alwaysOn
       ftpsState: ftpsState

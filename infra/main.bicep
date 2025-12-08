@@ -15,23 +15,25 @@ param location string
 // }
 param resourceGroupName string = ''
 param webServiceName string = ''
-param catalogDatabaseName string = 'catalogDatabase'
-param catalogDatabaseServerName string = ''
-param identityDatabaseName string = 'identityDatabase'
-param identityDatabaseServerName string = ''
 param appServicePlanName string = ''
+param acrName string = ''
 param keyVaultName string = ''
+
+// param catalogDatabaseName string = 'catalogDatabase'
+// param catalogDatabaseServerName string = ''
+// param identityDatabaseName string = 'identityDatabase'
+// param identityDatabaseServerName string = ''
 
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
-@secure()
-@description('SQL Server administrator password')
-param sqlAdminPassword string
+// @secure()
+// @description('SQL Server administrator password')
+// param sqlAdminPassword string
 
-@secure()
-@description('Application user password')
-param appUserPassword string
+// @secure()
+// @description('Application user password')
+// param appUserPassword string
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -42,6 +44,19 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
   location: location
   tags: tags
+}
+
+module acr './core/host/containerregistry.bicep' = {
+  name: 'acr'
+  scope: rg
+  params: {
+    name: !empty(acrName) ? acrName : '${abbrs.containerRegistryRegistries}${resourceToken}'
+    location: location
+    tags: tags
+    sku: {
+      name: 'Basic'
+    }
+  }
 }
 
 // The application frontend
@@ -55,12 +70,28 @@ module web './core/host/appservice.bicep' = {
     keyVaultName: keyVault.outputs.name
     runtimeName: 'dotnetcore'
     runtimeVersion: '9.0'
+    kind: 'app,linux,container'
+    linuxFxVersion: 'DOCKER|mcr.microsoft.com/appsvc/staticsite:latest'
+    enableOryxBuild: false
+    acrUseManagedIdentityCreds: true
     tags: union(tags, { 'azd-service-name': 'web' })
     appSettings: {
-      AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
-      AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
+      // AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
+      // AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
       AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
+      DOCKER_REGISTRY_SERVER_URL: 'https://${acr.outputs.loginServer}'
+      WEBSITES_ENABLE_APP_SERVICE_STORAGE: 'false'
+      UseOnlyInMemoryDatabase: 'true'
     }
+  }
+}
+
+module acrAccess './core/security/acr-access.bicep' = {
+  name: 'acr-access'
+  scope: rg
+  params: {
+    acrName: acr.outputs.name
+    principalId: web.outputs.identityPrincipalId
   }
 }
 
@@ -73,37 +104,37 @@ module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
   }
 }
 
-// The application database: Catalog
-module catalogDb './core/database/sqlserver/sqlserver.bicep' = {
-  name: 'sql-catalog'
-  scope: rg
-  params: {
-    name: !empty(catalogDatabaseServerName) ? catalogDatabaseServerName : '${abbrs.sqlServers}catalog-${resourceToken}'
-    databaseName: catalogDatabaseName
-    location: location
-    tags: tags
-    sqlAdminPassword: sqlAdminPassword
-    appUserPassword: appUserPassword
-    keyVaultName: keyVault.outputs.name
-    connectionStringKey: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
-  }
-}
+// // The application database: Catalog
+// module catalogDb './core/database/sqlserver/sqlserver.bicep' = {
+//   name: 'sql-catalog'
+//   scope: rg
+//   params: {
+//     name: !empty(catalogDatabaseServerName) ? catalogDatabaseServerName : '${abbrs.sqlServers}catalog-${resourceToken}'
+//     databaseName: catalogDatabaseName
+//     location: location
+//     tags: tags
+//     sqlAdminPassword: sqlAdminPassword
+//     appUserPassword: appUserPassword
+//     keyVaultName: keyVault.outputs.name
+//     connectionStringKey: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
+//   }
+// }
 
-// The application database: Identity
-module identityDb './core/database/sqlserver/sqlserver.bicep' = {
-  name: 'sql-identity'
-  scope: rg
-  params: {
-    name: !empty(identityDatabaseServerName) ? identityDatabaseServerName : '${abbrs.sqlServers}identity-${resourceToken}'
-    databaseName: identityDatabaseName
-    location: location
-    tags: tags
-    sqlAdminPassword: sqlAdminPassword
-    appUserPassword: appUserPassword
-    keyVaultName: keyVault.outputs.name
-    connectionStringKey: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
-  }
-}
+// // The application database: Identity
+// module identityDb './core/database/sqlserver/sqlserver.bicep' = {
+//   name: 'sql-identity'
+//   scope: rg
+//   params: {
+//     name: !empty(identityDatabaseServerName) ? identityDatabaseServerName : '${abbrs.sqlServers}identity-${resourceToken}'
+//     databaseName: identityDatabaseName
+//     location: location
+//     tags: tags
+//     sqlAdminPassword: sqlAdminPassword
+//     appUserPassword: appUserPassword
+//     keyVaultName: keyVault.outputs.name
+//     connectionStringKey: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
+//   }
+// }
 
 // Store secrets in a keyvault
 module keyVault './core/security/keyvault.bicep' = {
@@ -126,19 +157,23 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
     location: location
     tags: tags
     sku: {
-      name: 'B1'
+      name: 'F1'
     }
+    reserved: true
   }
 }
 
 // Data outputs
-output AZURE_SQL_CATALOG_CONNECTION_STRING_KEY string = catalogDb.outputs.connectionStringKey
-output AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY string = identityDb.outputs.connectionStringKey
-output AZURE_SQL_CATALOG_DATABASE_NAME string = catalogDb.outputs.databaseName
-output AZURE_SQL_IDENTITY_DATABASE_NAME string = identityDb.outputs.databaseName
+// output AZURE_SQL_CATALOG_CONNECTION_STRING_KEY string = catalogDb.outputs.connectionStringKey
+// output AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY string = identityDb.outputs.connectionStringKey
+// output AZURE_SQL_CATALOG_DATABASE_NAME string = catalogDb.outputs.databaseName
+// output AZURE_SQL_IDENTITY_DATABASE_NAME string = identityDb.outputs.databaseName
 
 // App outputs
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.endpoint
 output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
+output acrName string = acr.outputs.name
+output acrLoginServer string = acr.outputs.loginServer
+output webServiceName string = web.outputs.name
