@@ -18,6 +18,6 @@ All notable changes to this project will be documented in this file.
   - Include ACR module.
   - Configure App Service for Linux Containers.
   - Use Managed Identity for pulling images from ACR.
-  - Use `F1` (Free) App Service Plan.
+  - Use `B1` (Basic) App Service Plan (lowest-cost Linux container option).
   - Commented out SQL Server resources (Catalog and Identity databases) to use In-Memory database instead.
 - **Application**: Updated `src/Web/Extensions/ServiceCollectionExtensions.cs` to prioritize `UseOnlyInMemoryDatabase` configuration, ensuring In-Memory DB is used even in production environments if configured.

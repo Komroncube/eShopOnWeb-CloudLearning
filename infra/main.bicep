@@ -157,7 +157,9 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
     location: location
     tags: tags
     sku: {
-      name: 'F1'
+      name: 'B1'
+      tier: 'Basic'
+      capacity: 1
     }
     reserved: true
   }
