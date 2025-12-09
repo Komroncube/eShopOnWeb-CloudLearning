@@ -20,18 +20,18 @@ using OpenTelemetry.Resources;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
-builder.Services.AddOpenTelemetry()
-    .UseAzureMonitor(options =>
-    {
-        options.SamplingRatio = 0.2f;
-    })
-    .ConfigureResource(rb =>
-    {
-        rb.AddAttributes(
-        [
-            new ("service.name", "PublicApi"),
-        ]);
-    });
+// builder.Services.AddOpenTelemetry()
+//     .UseAzureMonitor(options =>
+//     {
+//         options.SamplingRatio = 0.2f;
+//     })
+//     .ConfigureResource(rb =>
+//     {
+//         rb.AddAttributes(
+//         [
+//             new ("service.name", "PublicApi"),
+//         ]);
+//     });
 
 builder.AddAspireServiceDefaults();
 
