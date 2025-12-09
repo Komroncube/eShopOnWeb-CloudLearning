@@ -15,7 +15,7 @@ public static class Extensions
 {
     public static IHostApplicationBuilder AddAspireServiceDefaults(this IHostApplicationBuilder builder)
     {
-        builder.ConfigureOpenTelemetry();
+        // builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
 
