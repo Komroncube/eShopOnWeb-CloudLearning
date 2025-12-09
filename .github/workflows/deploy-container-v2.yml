@@ -1,4 +1,5 @@
 name: Container Deploy V2
+run-name: Deploy ${{ inputs.project }} container
 
 on:
   workflow_dispatch:
@@ -36,7 +37,7 @@ jobs:
             echo "image_name=eshop-api" >> $GITHUB_OUTPUT
           else
             echo "dockerfile=src/Web/Dockerfile" >> $GITHUB_OUTPUT
-            echo "image_name=eshop-web:${{ github.run_number }}" >> $GITHUB_OUTPUT
+            echo "image_name=eshop-web" >> $GITHUB_OUTPUT
           fi
         shell: bash
 
