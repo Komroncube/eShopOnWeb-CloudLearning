@@ -21,6 +21,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/src/Web/out ./
 
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
 # Optional: Set this here if not setting it from docker-compose.yml
 ENV ASPNETCORE_ENVIRONMENT Development
 
