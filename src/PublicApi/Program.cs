@@ -85,7 +85,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<HeaderMiddleware>();
-app.UseAzureAppConfiguration();
 
 app.UseHttpsRedirection();
 
