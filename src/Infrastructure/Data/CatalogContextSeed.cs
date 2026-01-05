@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
@@ -20,6 +21,9 @@ public class CatalogContextSeed
             {
                 catalogContext.Database.Migrate();
             }
+            if (catalogContext.Database.GetPendingMigrations().Any())
+                catalogContext.Database.Migrate();
+
 
             if (!await catalogContext.CatalogBrands.AnyAsync())
             {
@@ -50,7 +54,7 @@ public class CatalogContextSeed
             if (retryForAvailability >= 10) throw;
 
             retryForAvailability++;
-            
+
             logger.LogError(ex.Message);
             await SeedAsync(catalogContext, logger, retryForAvailability);
             throw;

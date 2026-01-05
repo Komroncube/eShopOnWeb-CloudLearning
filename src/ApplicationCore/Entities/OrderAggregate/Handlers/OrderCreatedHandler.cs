@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate.Events;
@@ -18,10 +17,9 @@ public class OrderCreatedHandler(ILogger<OrderCreatedHandler> logger, IEmailSend
                                          "Order Created",
                                          $"Order with id {domainEvent.Order.Id} was created.");
 
-        using var httpClient = new HttpClient();
         var order = new
         {
-            Id = domainEvent.Order.Id,
+            domainEvent.Order.Id,
             Address = domainEvent.Order.ShipToAddress,
             ListOfItems = domainEvent.Order.OrderItems,
             TotalPrice = domainEvent.Order.Total()

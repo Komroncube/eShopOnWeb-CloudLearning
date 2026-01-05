@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
@@ -21,6 +24,13 @@ public class ServiceBusSenderService : IServiceBusSenderService
     {
         var messageBody = JsonSerializer.Serialize(order);
         var message = new ServiceBusMessage(messageBody);
+
+        using var httpClient = new HttpClient();
+        var funcUrl = Environment.GetEnvironmentVariable("order-processing");
+        var response = await httpClient.PostAsJsonAsync(funcUrl, order, cancellationToken);
+        logger.LogInformation("http function status: {status}", response.StatusCode);
+
+
 
         await sbSender.SendMessageAsync(message, cancellationToken);
 
