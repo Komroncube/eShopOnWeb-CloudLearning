@@ -1,6 +1,4 @@
-﻿using System;
-using Azure.Identity;
-using BlazorShared;
+﻿using BlazorShared;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Builder;
@@ -11,7 +9,6 @@ using Microsoft.eShopWeb.PublicApi;
 using Microsoft.eShopWeb.PublicApi.Extensions;
 using Microsoft.eShopWeb.PublicApi.Middleware;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -74,28 +71,6 @@ builder.AddSeqEndpoint(connectionName: "seq", options =>
 {
     options.ServerUrl = seqUrl;
 });
-
-builder.Services.AddAzureAppConfiguration();
-
-builder.Configuration.AddAzureAppConfiguration(options =>
-{
-    string configUri = builder.Configuration["ConfigurationConnection"] ?? string.Empty;
-
-
-    DefaultAzureCredentialOptions credentialOptions = new()
-    {
-        ExcludeWorkloadIdentityCredential = false,
-        ExcludeManagedIdentityCredential = true
-    };
-    options.Connect(new Uri(configUri), new DefaultAzureCredential())
-           .Select(KeyFilter.Any, LabelFilter.Null)
-           .ConfigureRefresh(refreshOptions =>
-           {
-               refreshOptions.RegisterAll();
-           });
-
-});
-
 
 var app = builder.Build();
 
